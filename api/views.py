@@ -1,7 +1,4 @@
 from django.shortcuts import render
-
-from rest_framework.views import APIView
-
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.core import serializers
@@ -16,7 +13,7 @@ from django.shortcuts import get_object_or_404
 def add_new_game(request):	
 	new_game = Game()
 	new_game.save()
-	return Response({"id": new_game.id, "state": new_game.current_state})	
+	return Response({'id': new_game.id, 'board_state': new_game.board_state})	
 
 @api_view(['GET'])		
 def get_turns(request, game_id):	
@@ -35,8 +32,8 @@ def make_turn(request):
 		if (player_symbol == game.next_player_symbol) and (player_symbol in [Game.PLAYER1, Game.PLAYER2]):
 			game.move(position, player_symbol)
 			if game.winner:
-				return Response({'current_state': 'closed', 'winner': game.winner})
-			return Response({'current_state': game.current_state, 'next_player_symbol': game.next_player_symbol})
+				return Response({'board_state': 'closed', 'winner': game.winner})
+			return Response({'board_state': game.board_state, 'next_player_symbol': game.next_player_symbol})
 		else:
 			return Response("Not your turn!")
 	except Exception as e:

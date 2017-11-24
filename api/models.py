@@ -15,7 +15,7 @@ class Game(models.Model):
 	PLAYER1 = 'X'
 	PLAYER2 = 'O'
 
-	current_state = models.CharField(max_length=255, blank=False, default="NNNNNNNNN")
+	board_state = models.CharField(max_length=255, blank=False, default="NNNNNNNNN")
 	date_created = models.DateTimeField(auto_now=True)
 	winner = models.CharField(max_length=255, null=True)
 	next_player_symbol = models.CharField(max_length=255, blank=True, default=PLAYER1)
@@ -39,23 +39,23 @@ class Game(models.Model):
 			self.closed = True
 			self.winner = player_symbol
 			self.save()
-		if self.check_game_finish():
+		if self.check_toe():
 			self.closed = True
-			self.winner = 'Tie'
+			self.winner = 'Toe'
 			self.save()
 
-	def check_game_finish(self):
-		for i in range(len(self.current_state)):
-			if self.current_state[i] == 'N':
+	def check_toe(self):
+		for i in range(len(self.board_state)):
+			if self.board_state[i] == 'N':
 				return False
 		return True
 
 	def position_available(self, position):
-		symbol = self.current_state[position]
+		symbol = self.board_state[position]
 		return symbol not in [self.PLAYER1, self.PLAYER2]
 
 	def set_symbol(self, position, player_symbol):
-		self.current_state = self.current_state[:position] + player_symbol + self.current_state[position + 1:]
+		self.board_state = self.board_state[:position] + player_symbol + self.board_state[position + 1:]
 		self.next_player_symbol = 'X' if player_symbol == 'O' else 'O'
 		self.save()
 
@@ -63,7 +63,7 @@ class Game(models.Model):
 		assert player_symbol in [self.PLAYER1, self.PLAYER2]
 
 		def check(position):
-			return self.current_state[position] == player_symbol
+			return self.board_state[position] == player_symbol
 
 		for i in range(0, 3):
 			horizontal = check(0+i*3) and check(1+i*3) and check(2+i*3)
